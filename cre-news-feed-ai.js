@@ -23,7 +23,6 @@ const FEEDS = [
 ];
 
 const RSS2JSON = "https://api.rss2json.com/v1/api.json?api_key=c10gwpxcgfcql3zy6gfagj2o0wslnytomIziwtne&rss_url=";
-```
 
 // To use AI scoring, paste your Anthropic API key here:
 const ANTHROPIC_API_KEY = "";
