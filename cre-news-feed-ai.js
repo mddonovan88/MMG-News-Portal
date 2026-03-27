@@ -22,7 +22,7 @@ const FEEDS = [
   { url: "https://rebusinessonline.com/feed/",                         name: "REBusiness Online" },
 ];
 
-const RSS2JSON = "https://api.rss2json.com/v1/api.json?api_key=YOUR_KEY_HERE&rss_url=";
+const RSS2JSON = "https://api.rss2json.com/v1/api.json?api_key=ewcjhlcn14aubvp728jturdg7zd35qjyknrm9tfs&rss_url=";
 
 // To use AI scoring, paste your Anthropic API key here:
 const ANTHROPIC_API_KEY = "";
