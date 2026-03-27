@@ -22,7 +22,7 @@ const FEEDS = [
   { url: "https://rebusinessonline.com/feed/",                         name: "REBusiness Online" },
 ];
 
-const RSS2JSON = "https://api.rss2json.com/v1/api.json?api_key=c10gwpxcgfcql3zy6gfagj2o0wslnytomIziwtne&rss_url=";
+const PROXY = "https://api.allorigins.win/get?url=";
 
 // To use AI scoring, paste your Anthropic API key here:
 const ANTHROPIC_API_KEY = "";
@@ -360,20 +360,29 @@ function updateGeoSub() {
 
 async function fetchFeed(feed) {
   try {
-    const res = await fetch(`${RSS2JSON}${encodeURIComponent(feed.url)}&count=15`);
+    const res = await fetch(`${PROXY}${encodeURIComponent(feed.url)}`);
     const data = await res.json();
-    if (!data.items) return [];
-    return data.items.map(item => {
-      const raw = (item.description || item.summary || "").replace(/<[^>]+>/g, "").trim().slice(0, 200);
+    if (!data.contents) return [];
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, "text/xml");
+    const items = [...xml.querySelectorAll("item, entry")].slice(0, 15);
+    return items.map(item => {
+      const get = (tag) => item.querySelector(tag)?.textContent?.trim() || "";
+      const title = get("title") || "Untitled";
+      const link = item.querySelector("link")?.textContent?.trim() ||
+                   item.querySelector("link")?.getAttribute("href") || "#";
+      const rawDesc = get("description") || get("summary") || get("content") || "";
+      const summary = rawDesc.replace(/<[^>]+>/g, "").trim().slice(0, 200);
+      const pubDate = get("pubDate") || get("published") || get("updated") || "";
       return {
-        title: item.title || "Untitled",
-        summary: raw.length === 200 ? raw + "..." : raw,
-        link: item.link || "#",
+        title,
+        summary: summary.length === 200 ? summary + "..." : summary,
+        link,
         source: feed.name,
-        time: item.pubDate ? timeAgo(item.pubDate) : "Recent",
-        pubDate: item.pubDate ? new Date(item.pubDate) : new Date(0),
+        time: pubDate ? timeAgo(pubDate) : "Recent",
+        pubDate: pubDate ? new Date(pubDate) : new Date(0),
       };
-    });
+    }).filter(a => a.title !== "Untitled");
   } catch(e) { return []; }
 }
 
